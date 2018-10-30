@@ -8,7 +8,7 @@ using System.Windows.Forms;
 namespace MineGame
 {
     public enum 区块状态 { 未知, 标记, 安全, 爆炸, 可疑 }
-    class 地雷 : System.Windows.Forms.Button, I地雷
+    class 区块 : System.Windows.Forms.Button, I地雷
     {
         int _在雷场中的行位置;
         public int 在雷场中的行位置
@@ -25,12 +25,12 @@ namespace MineGame
         static int _长 = 35;
         public static int 高度
         {
-            get { return 地雷._长; }
+            get { return 区块._长; }
         }
         static int _宽 = 35;
         public static int 长度
         {
-            get { return 地雷._宽; }
+            get { return 区块._宽; }
         }
         Boolean _is地雷;
         public Boolean Is地雷
@@ -40,14 +40,14 @@ namespace MineGame
         static 雷场 _所属雷场;
         public static 雷场 所属雷场
         {
-            get { return 地雷._所属雷场; }
+            get { return 区块._所属雷场; }
         }
 
         static Boolean _游戏是否结束 = false;
         public static Boolean 游戏是否结束
         {
-            get { return 地雷._游戏是否结束; }
-            private set { 地雷._游戏是否结束 = value; }
+            get { return 区块._游戏是否结束; }
+            private set { 区块._游戏是否结束 = value; }
         }
 
         static int _已打开安全区数量 = 0;
@@ -67,28 +67,34 @@ namespace MineGame
             set
             {
                 _当前状态 = value;
-                显示当前外观(value);
 
                 if (_当前状态 == 区块状态.爆炸)
                     游戏结束(false);
-                else if (_当前状态 == 区块状态.安全)
-                    已打开安全区数量 = 1;
+                else
+                {
+                    if (_当前状态 == 区块状态.安全)
+                        已打开安全区数量 = 1;
 
+                    修改区块当前外观(value);
+                }
             }
         }
 
 
-        public 地雷(Boolean 是否是地雷, 雷场 雷场)
-        {
-            地雷._所属雷场 = 雷场;
-            设置地雷(是否是地雷);
+        public 区块(Boolean 是否是地雷, 雷场 雷场)
+        {            
+            初始化地雷(是否是地雷, 雷场);
         }
-        void 设置地雷(Boolean 是否是地雷)
+        void 初始化地雷(Boolean 是否是地雷, 雷场 雷场)
         {
+            区块._所属雷场 = 雷场;
             _is地雷 = 是否是地雷;
-            this.Size = new System.Drawing.Size(_长, _宽);
             this.MouseDown += 处理鼠标被点击的方法;
-        }
+            this.Size = new System.Drawing.Size(_长, _宽);
+            当前状态 = 区块状态.未知;
+        }   
+            
+        
         void 处理鼠标被点击的方法(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             if (游戏是否结束)
@@ -106,9 +112,9 @@ namespace MineGame
                 case System.Windows.Forms.MouseButtons.Right:
                     if (_当前状态 == 区块状态.未知)
                         当前状态 = 区块状态.标记;
-                    if (_当前状态 == 区块状态.标记)
+                    else if (_当前状态 == 区块状态.标记)
                         当前状态 = 区块状态.可疑;
-                    if (_当前状态 == 区块状态.可疑)
+                    else if (_当前状态 == 区块状态.可疑)
                         当前状态 = 区块状态.未知;
                     break;
                 default:
@@ -116,18 +122,16 @@ namespace MineGame
             }
 
         }
-        
-        void 显示当前外观(区块状态 当前外观)
+
+        void 修改区块当前外观(区块状态 当前外观)
         {
             System.Drawing.Image img;
-            img = Properties.Resources.n;
+            img = null;
 
-            #region
             switch (当前外观)
             {
-                case 区块状态.安全:
-                    显示地雷外观();
-                    
+                case 区块状态.未知:
+                    img = Properties.Resources.n;
                     break;
                 case 区块状态.爆炸:
                     img = Properties.Resources.c;
@@ -139,18 +143,16 @@ namespace MineGame
                     img = Properties.Resources.q;
                     break;
                 default:
+                    img = 设置区块外观();
                     break;
             }
-            #endregion
 
             this.Image = img;
-            //this.Text = 当前外观.ToString();
         }
 
-        void 显示地雷外观()
+        System.Drawing.Image 设置区块外观()
         {
             System.Drawing.Image img;
-
             switch (_所属雷场.雷场状态[_在雷场中的行位置, _在雷场中的列位置])
             {
                 case 0:
@@ -180,14 +182,11 @@ namespace MineGame
                 case 8:
                     img = Properties.Resources._8;
                     break;
-                case -1:
+                default:
                     img = Properties.Resources.b;
                     break;
-                default:
-                    img = Properties.Resources.n;
-                    break;
             }
-            this.Image = img;
+            return img;
         }
         /// <summary>
         /// 
@@ -209,8 +208,11 @@ namespace MineGame
             {
                 try
                 {
-                    地雷 _地雷 = (地雷)control;
-                    _地雷.显示地雷外观();
+                    区块 _地雷 = (区块)control;
+                    if (_地雷 != this)
+                        _地雷.Image = _地雷.设置区块外观();
+                    else
+                        _地雷.Image = Properties.Resources.c;
                 }
                 catch (Exception) { ;}
             }
