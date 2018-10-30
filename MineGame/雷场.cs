@@ -8,12 +8,28 @@ namespace MineGame
     public partial class 雷场 : System.Windows.Forms.Panel
     {
         int _列数;
+        public int 列数
+        {
+            get { return _列数; }
+        }
         int _行数;
+        public int 行数
+        {
+            get { return _行数; }
+        }
         int _地雷总数;
+        public int 地雷总数
+        {
+            get { return _地雷总数; }
+        }
         /// <summary>
         /// 保存雷场中每个坐标点是否是地雷，或者是邻居地雷数量
         /// </summary>
         int[,] _雷场状态;
+        public int[,] 雷场状态
+        {
+            get { return _雷场状态; }
+        }
         int _上边距 = 20;
         int _下边距 = 20;
         int _左边距 = 20;
@@ -22,8 +38,8 @@ namespace MineGame
         int _地雷行间距 = 2;
 
         public 雷场()
-        {          
- 
+        {
+            开始游戏();
         }
         /// <summary>
         /// 
@@ -143,11 +159,13 @@ namespace MineGame
         /// </summary>
         void 加载地雷()
         {
+            
             for (int 行坐标 = 0; 行坐标 < _行数; 行坐标++)
                 for (int 列坐标 = 0; 列坐标 < _列数; 列坐标++)
                 {
-                    地雷 _地雷;
-                    _地雷 = _雷场状态[行坐标, 列坐标] == -1 ? new 地雷(true) : new 地雷(false);
+                    地雷 _地雷;                    
+
+                    _地雷 = _雷场状态[行坐标, 列坐标] == -1 ? new 地雷(true,this) : new 地雷(false,this);                    
 
                     //设置地雷在雷场中的行列位置
                     _地雷.在雷场中的行位置 = 行坐标;
@@ -157,6 +175,7 @@ namespace MineGame
                     _地雷.Location = new System.Drawing.Point(
                         _左边距 + (地雷.长度 + _地雷列间距) * 列坐标,
                         _上边距 + (地雷.高度 + _地雷行间距) * 行坐标);
+
                     this.Controls.Add(_地雷);
                 }
         }      
