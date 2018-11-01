@@ -384,9 +384,9 @@ namespace MineGame
             if (!胜利)
             {
                 引爆所有地雷();
-                MessageBox.Show("you are faild！");
+                MessageBox.Show("很遗憾，你失败了！");
             }else
-            MessageBox.Show("you are win！");
+            MessageBox.Show("恭喜你，你成功了！");
         }
         void 引爆所有地雷()
         {
